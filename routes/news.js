@@ -37,7 +37,7 @@ router.get('/', async (req, res) => {
       if (req.query.q!==undefined) {
         const newsData = await getNews(req.query.page, req.query.p);
         res.send({
-          news: newsData,
+          news: newsData.articles,
           totalArticles: newsData.totalResults,
         })
       } else {
