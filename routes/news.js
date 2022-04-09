@@ -36,17 +36,13 @@ const api_key=process.env.NEWS_API_KEY;
      });
 
   }else{
-    
-    news.articles.sort((a, b) => a.title.localeCompare(b.title));
-  
+    let OrderArrayData=news;
+    OrderArrayData.articles.sort((a, b) => a.title.split(/\s+/)[0].replace(/[^a-zA-Z ]/g,"").localeCompare(b.title.split(/\s+/)[0].replace(/[^a-zA-Z ]/g,"")));
     res.send({
       totalArticles:news.totalResults,
-      articles:news.articles
+      news:OrderArrayData.articles
     });
-    
-
   }
-
 });
 
 //function which gets the news from the external api
@@ -54,10 +50,10 @@ const getNews=async(pageNumber=1)=>{
   
   
 
-  console.log(pageNumber)
+  
   let dataGotBackFromApi=[];
   try{
-      const res=await axios.get(`https://newsapi.org/v2/top-headlines?country=it&apiKey=${api_key}&page=${pageNumber}&pageSize=20`);
+      const res=await axios.get(`https://newsapi.org/v2/top-headlines?country=us&apiKey=${api_key}&page=${pageNumber}&pageSize=20`);
       dataGotBackFromApi=res.data;
       
 
