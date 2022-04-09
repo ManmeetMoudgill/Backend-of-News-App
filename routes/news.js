@@ -21,10 +21,7 @@ router.get('/', async (req, res) => {
     //creating an supportive variabele to check whether the user wants to order the news by title or not
     var isOrderByTitleChecked = (req.query.orderByTitle === 'true');
 
-
-
-
-
+    //if the user wants to order the news by title
     if (isOrderByTitleChecked === true) {
       let OrderArrayData = news;
       OrderArrayData.articles.sort((a, b) => a.title.split(/\s+/)[0].replace(/[^a-zA-Z ]/g, "").localeCompare(b.title.split(/\s+/)[0].replace(/[^a-zA-Z ]/g, "")));
@@ -33,6 +30,7 @@ router.get('/', async (req, res) => {
         news: OrderArrayData.articles
       });
     } else {
+      
       //filter the new on the basis of the query parameter
       if (req.query.q!==undefined) {
         const newsData = await getNews(req.query.page, req.query.p);
@@ -59,7 +57,10 @@ router.get('/', async (req, res) => {
     }
 
   } catch (err) {
-    console.log(err);
+    res.send({
+      success:false,
+      error: err
+    })
   }
 
 });
@@ -71,7 +72,6 @@ const getNews = async (pageNumber = 1, queryParamter) => {
     
     let res=null;
     if (queryParamter===undefined) {
-      
       res = await axios.get(`https://newsapi.org/v2/top-headlines?country=us&apiKey=${api_key}&page=${pageNumber}&pageSize=20`);
       dataGotBackFromApi = res.data;
 
