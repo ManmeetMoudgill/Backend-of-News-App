@@ -25,34 +25,30 @@ router.get('/', async (req, res) => {
     if (isOrderByTitleChecked === true) {
       let OrderArrayData = news;
       OrderArrayData.articles.sort((a, b) => a.title.split(/\s+/)[0].replace(/[^a-zA-Z ]/g, "").localeCompare(b.title.split(/\s+/)[0].replace(/[^a-zA-Z ]/g, "")));
-      res.send({
-        totalArticles: news.totalResults,
-        news: OrderArrayData.articles
-      });
+      
+     //callling the function which will send the result to the client
+     sendResponse(res, OrderArrayData, news.totalResults);
+
     } else {
       
       //filter the new on the basis of the query parameter
       if (req.query.q!==undefined) {
-        const newsData = await getNews(req.query.page, req.query.p);
-        res.send({
-          news: newsData.articles,
-          totalArticles: newsData.totalResults,
-        })
+        
+        const newsData = await getNews(req.query.page, req.query.q);
+        
+        //calling the function which will filter the news on the basis of the author name
+        result = filterNewsOnBasisOfAuthorName(newsData);
+        
+        //callling the function which will send the result to the client
+        sendResponse(res, result, newsData.totalResults);
+
       } else {
-        let filtereElementts = [];
-        news.articles.forEach((el) => {
-          
-          if (el.author !== null) {
-            let authorSplittedArray = el.author.split(/\s+/);
-            if (authorSplittedArray.length >= 2 && authorSplittedArray.length <= 3) {
-              filtereElementts.push(el);
-            }
-          }
-        });
-        res.send({
-          news: filtereElementts,
-          totalArticles: news.totalResults,
-        });
+        
+        //calling the function which will filter the news on the basis of the author name
+        filteredElements = filterNewsOnBasisOfAuthorName(news);
+
+        //callling the function which will send the result to the client
+        sendResponse(res, filteredElements, news.totalResults);
       }
     }
 
@@ -77,7 +73,7 @@ const getNews = async (pageNumber = 1, queryParamter) => {
 
     } else {
       
-      res = await axios.get(`https://newsapi.org/v2/top-headlines?country=us&apiKey=${api_key}&q=${queryParamter}&page=${pageNumber}&pageSize=20`);
+      res = await axios.get(`https://newsapi.org/v2/everything?&q=${queryParamter}&apiKey=${api_key}&page=${pageNumber}&pageSize=20`);
       dataGotBackFromApi = res.data;
       
     }
@@ -88,6 +84,29 @@ const getNews = async (pageNumber = 1, queryParamter) => {
 }
 
 
+
+//check whether the author name string contains only two or three words
+const filterNewsOnBasisOfAuthorName = (news) => {
+  let filteredElements = [];
+  news.articles.forEach((el) => {
+    
+    if (el.author !== null) {
+      let authorSplittedArray = el.author.split(/\s+/);
+      if (authorSplittedArray.length >= 2 && authorSplittedArray.length <= 3) {
+        filteredElements.push(el);
+      }
+    }
+  });
+  return filteredElements;
+}
+
+//function that recievers the news and totalresult and send the response to the client
+const sendResponse = (res,news,totalArticles) => {
+  res.send({
+    news: news,
+    totalArticles:totalArticles,
+  });
+}
 
 
 module.exports = router;
