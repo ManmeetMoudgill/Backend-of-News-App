@@ -61,6 +61,22 @@ router.get('/', async (req, res) => {
 
 });
 
+
+//Route 2-->fetch the top headlines from the external api
+router.get('/topHeadlines', async (req, res) => {
+  console.log("INSIDE THE TOP HEADLINES");
+  try{
+
+   let topHeadlines=await axios.get(`https://newsapi.org/v2/top-headlines?country=us&apiKey=${api_key}`);
+   res.send({
+     news:topHeadlines.data.articles,
+     totalResults:topHeadlines.data.totalResults
+   });
+
+  }catch(err){
+    console.log(err);
+  }
+});
 //function which gets the news from the external api
 const getNews = async (pageNumber = 1, queryParamter) => {
   let dataGotBackFromApi = [];
