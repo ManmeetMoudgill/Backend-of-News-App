@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
       OrderArrayData.articles.sort((a, b) => a.title.split(/\s+/)[0].replace(/[^a-zA-Z ]/g, "").localeCompare(b.title.split(/\s+/)[0].replace(/[^a-zA-Z ]/g, "")));
       
      //callling the function which will send the result to the client
-     sendResponse(res, OrderArrayData, news.totalResults);
+     sendResponse(res, OrderArrayData, OrderArrayData.totalResults);
 
     } else {
       
@@ -43,7 +43,7 @@ router.get('/', async (req, res) => {
         sendResponse(res, result, newsData.totalResults);
 
       } else {
-        
+
         //calling the function which will filter the news on the basis of the author name
         filteredElements = filterNewsOnBasisOfAuthorName(news);
 
