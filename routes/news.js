@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
       OrderArrayData.articles.sort((a, b) => a.title.split(/\s+/)[0].replace(/[^a-zA-Z ]/g, "").localeCompare(b.title.split(/\s+/)[0].replace(/[^a-zA-Z ]/g, "")));
       
      //callling the function which will send the result to the client
-     sendResponse(res, OrderArrayData, OrderArrayData.totalResults);
+     sendResponse(res, OrderArrayData.articles, OrderArrayData.totalResults);
 
     } else {
       
