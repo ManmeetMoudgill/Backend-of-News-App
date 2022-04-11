@@ -36,7 +36,7 @@ router.get('/', async (req, res) => {
       filteredElements = filterNewsOnBasisOfAuthorName(news);
 
       //callling the function which will send the result to the client
-      sendResponse(res, filteredElements, filteredElements.length);
+      sendResponse(res, filteredElements, news.totalResults);
     }
 
 
