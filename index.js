@@ -11,6 +11,7 @@ app.use(cors());
 
 //creating routes here
 app.use('/news',require('./routes/news'));
+app.use('/singleNews',require('./routes/singleNews'));
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
