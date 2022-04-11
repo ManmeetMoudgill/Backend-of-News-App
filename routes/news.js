@@ -17,44 +17,31 @@ router.get('/', async (req, res) => {
     //calling the getNews function
     let news = await getNews(req.query.page);
 
+    //filter the new on the basis of the query parameter
+    if (req.query.q !== undefined) {
 
-    //creating an supportive variabele to check whether the user wants to order the news by title or not
-    var isOrderByTitleChecked = (req.query.orderByTitle === 'true');
+      const newsData = await getNews(req.query.page, req.query.q);
 
-    //if the user wants to order the news by title
-    if (isOrderByTitleChecked === true) {
-      let OrderArrayData = news;
-      OrderArrayData.articles.sort((a, b) => a.title.split(/\s+/)[0].replace(/[^a-zA-Z ]/g, "").localeCompare(b.title.split(/\s+/)[0].replace(/[^a-zA-Z ]/g, "")));
-      
-     //callling the function which will send the result to the client
-     sendResponse(res, OrderArrayData.articles, OrderArrayData.totalResults);
+      //calling the function which will filter the news on the basis of the author name
+      result = filterNewsOnBasisOfAuthorName(newsData);
+
+      //callling the function which will send the result to the client
+      sendResponse(res, result, newsData.totalResults);
 
     } else {
-      
-      //filter the new on the basis of the query parameter
-      if (req.query.q!==undefined) {
-        
-        const newsData = await getNews(req.query.page, req.query.q);
-        
-        //calling the function which will filter the news on the basis of the author name
-        result = filterNewsOnBasisOfAuthorName(newsData);
-        
-        //callling the function which will send the result to the client
-        sendResponse(res, result, newsData.totalResults);
 
-      } else {
 
-        //calling the function which will filter the news on the basis of the author name
-        filteredElements = filterNewsOnBasisOfAuthorName(news);
+      //calling the function which will filter the news on the basis of the author name
+      filteredElements = filterNewsOnBasisOfAuthorName(news);
 
-        //callling the function which will send the result to the client
-        sendResponse(res, filteredElements, news.totalResults);
-      }
+      //callling the function which will send the result to the client
+      sendResponse(res, filteredElements, news.totalResults);
     }
+
 
   } catch (err) {
     res.send({
-      success:false,
+      success: false,
       error: err
     })
   }
@@ -62,36 +49,70 @@ router.get('/', async (req, res) => {
 });
 
 
+
+
+
 //Route 2-->fetch the top headlines from the external api
 router.get('/topHeadlines', async (req, res) => {
   console.log("INSIDE THE TOP HEADLINES");
-  try{
+  try {
 
-   let topHeadlines=await axios.get(`https://newsapi.org/v2/top-headlines?country=us&apiKey=${api_key}`);
-   res.send({
-     news:topHeadlines.data.articles,
-     totalResults:topHeadlines.data.totalResults
-   });
+    let topHeadlines = await axios.get(`https://newsapi.org/v2/top-headlines?country=us&apiKey=${api_key}`);
+    res.send({
+      news: topHeadlines.data.articles,
+      totalResults: topHeadlines.data.totalResults
+    });
 
-  }catch(err){
+  } catch (err) {
     console.log(err);
   }
 });
+
+
+
+//Route 3 filtered the news on the basis of the source 
+router.get('/filteredBySource/:name', async (req, res) => {
+
+  const source = req.params.name;
+  const pageNumber = req.query.page;
+  try {
+    let news = await axios.get(`https://newsapi.org/v2/top-headlines?country=us&apiKey=${api_key}&pageSize=20&page=${pageNumber}`);
+    let newsFiltered = filterNewsOnBasisOfAuthorName(news.data);
+    let filteredNewsBySource = newsFiltered.filter(el => el.source.name === source);
+    res.send({
+      success: true,
+      news: filteredNewsBySource,
+      totalArticles: filteredNewsBySource.length
+    });
+  } catch (err) {
+    res.send({
+      success: false,
+      error: err
+    })
+  }
+
+
+
+})
+
+
+
+
 //function which gets the news from the external api
 const getNews = async (pageNumber = 1, queryParamter) => {
   let dataGotBackFromApi = [];
   try {
-    
-    let res=null;
-    if (queryParamter===undefined) {
+
+    let res = null;
+    if (queryParamter === undefined) {
       res = await axios.get(`https://newsapi.org/v2/top-headlines?country=us&apiKey=${api_key}&page=${pageNumber}&pageSize=20`);
       dataGotBackFromApi = res.data;
 
     } else {
-      
+
       res = await axios.get(`https://newsapi.org/v2/everything?&q=${queryParamter}&apiKey=${api_key}&page=${pageNumber}&pageSize=20`);
       dataGotBackFromApi = res.data;
-      
+
     }
   } catch (err) {
     console.log(err);
@@ -105,7 +126,7 @@ const getNews = async (pageNumber = 1, queryParamter) => {
 const filterNewsOnBasisOfAuthorName = (news) => {
   let filteredElements = [];
   news.articles.forEach((el) => {
-    
+
     if (el.author !== null) {
       let authorSplittedArray = el.author.split(/\s+/);
       if (authorSplittedArray.length >= 2 && authorSplittedArray.length <= 3) {
@@ -116,11 +137,14 @@ const filterNewsOnBasisOfAuthorName = (news) => {
   return filteredElements;
 }
 
+
+
+
 //function that recievers the news and totalresult and send the response to the client
-const sendResponse = (res,news,totalArticles) => {
+const sendResponse = (res, news, totalArticles) => {
   res.send({
     news: news,
-    totalArticles:totalArticles,
+    totalArticles: totalArticles,
   });
 }
 
