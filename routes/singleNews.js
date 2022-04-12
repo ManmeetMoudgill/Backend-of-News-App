@@ -14,8 +14,10 @@ router.get('/:sourcename', async (req, res) => {
     
     //fetching  only news whose source name is equal to the source name in the url
     let filteredNews=news.data.articles.filter((el)=>{
-            return el.source.name===req.params.sourcename && el.author===authorName;
+        
+        return el.source.name===req.params.sourcename && el.author===authorName;
     })
+    
     if(filteredNews.length>0 && filteredNews.length===1){
     res.send({
         success:true,

@@ -17,6 +17,7 @@ router.get('/', async (req, res) => {
     //calling the getNews function
     let news = await getNews(req.query.page);
     
+    
 
     //filter the new on the basis of the query parameter
     if (req.query.q !== undefined) {
@@ -120,6 +121,7 @@ const getNews = async (pageNumber = 1, queryParamter) => {
   } catch (err) {
     console.log(err);
   }
+
   return dataGotBackFromApi;
 }
 
